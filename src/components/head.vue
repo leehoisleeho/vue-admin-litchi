@@ -18,7 +18,12 @@
       </template>
     </a-modal>
     <div class="logout">
-      <a-button type="primary" danger @click="logoutBtn">退出系统</a-button>
+      <a-button type="primary" danger @click="logoutBtn">
+        <template #icon>
+          <LoginOutlined />
+        </template>
+        退出
+      </a-button>
     </div>
   </div>
 </template>
@@ -26,12 +31,15 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import { LoginOutlined } from "@ant-design/icons-vue";
 const router = useRouter();
 const open = ref(false);
 
+// 退出按钮
 const logoutBtn = () => {
   open.value = true;
 };
+// 退出登录
 const handleOk = () => {
   localStorage.removeItem("token");
   router.push("/login");

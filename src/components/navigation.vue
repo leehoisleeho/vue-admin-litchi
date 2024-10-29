@@ -1,72 +1,79 @@
 <template>
   <div class="navigation">
     <div class="title">
-      <img src="/logo.png" alt="" />
+      <img :src="logoUrl" :alt="title" />
       <span>{{ title }}</span>
     </div>
     <a-menu
       v-model:selectedKeys="selectedKeys"
       v-model:openKeys="openKeys"
       mode="inline"
-      :items="items"
-      @click="handleClick"
-    ></a-menu>
+      :items="menuItems"
+      @click="handleMenuClick"
+    />
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, h, watch } from "vue";
+import { computed, reactive, ref, h, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { HomeOutlined, UserOutlined } from "@ant-design/icons-vue";
-// 获取.env配置文件中的VUE_APP_BASE_URL
-const title = import.meta.env.VITE_APP_TITLE;
+import { HomeOutlined, MenuOutlined } from "@ant-design/icons-vue";
 
+// Constants and Environment Variables
+const title = import.meta.env.VITE_APP_TITLE;
+const logoUrl = "/logo.png";
+
+// Router Setup
 const router = useRouter();
 const route = useRoute();
+
+// Menu State
 const selectedKeys = ref([route.path]);
-const openKeys = ref([]); // 初始化为空数组
+const openKeys = ref(["menu"]); // 默认展开菜单管理
 
-function getItem(label, key, icon, children, type) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    type,
-  };
-}
+// Menu Item Factory
+const createMenuItem = (label, key, icon = null, children = null) => ({
+  key,
+  label,
+  icon: icon ? () => h(icon) : undefined,
+  children,
+});
 
-const items = reactive([
-  getItem("首页", "/", () => h(HomeOutlined)),
-  getItem("个人设置", "/account", () => h(UserOutlined)),
+// Menu Structure
+const menuItems = reactive([
+  createMenuItem("首页", "/", HomeOutlined),
+  createMenuItem("菜单管理", "/menu", MenuOutlined),
 ]);
 
-// 检查当前路由是否是子菜单
-const isSubMenu = (path) => {
-  return path.split("/").length > 2;
+// Navigation Helpers
+const isSubMenu = computed(() => (path) => path.split("/").length > 2);
+
+const getParentKey = computed(() => (path) => {
+  const segments = path.split("/");
+  return segments.length > 1 ? `/${segments[1]}` : "";
+});
+
+// Event Handlers
+const handleMenuClick = ({ key }) => {
+  router.push(key);
 };
 
-// 获取父级菜单的 key
-const getParentKey = (path) => {
-  return "/" + path.split("/")[1];
-};
-
-// 点击菜单项 跳转路由
-const handleClick = (e) => {
-  router.push(e.key);
-};
-
-// 监听路由变化并更新选中的菜单项和展开状态
+// Route Watcher
 watch(
   route,
   (newRoute) => {
     selectedKeys.value = [newRoute.path];
 
-    // 只有当前路径是子菜单时，才设置 openKeys
-    if (isSubMenu(newRoute.path)) {
-      openKeys.value = [getParentKey(newRoute.path)];
+    // 根据当前路由判断是否需要展开父菜单
+    const parentMenuItem = menuItems.find((item) =>
+      item.children?.some((child) => child.key === newRoute.path)
+    );
+
+    if (parentMenuItem) {
+      // 如果当前路由是子菜单，展开父菜单
+      openKeys.value = [parentMenuItem.key];
     } else {
-      // 如果是一级菜单，则清空 openKeys
+      // 如果是主菜单，收起所有菜单
       openKeys.value = [];
     }
   },
@@ -75,27 +82,53 @@ watch(
 </script>
 
 <style scoped lang="less">
-.title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-bottom: 1px solid rgb(229, 229, 229);
-  padding: 15px;
-  span {
-    margin-top: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
-    // 斜体
-    font-style: italic;
-  }
-  img {
-    width: 60px;
-  }
-}
 .navigation {
   width: 300px;
   height: 100vh;
-  border-right: 1px solid rgb(229, 229, 229);
+  border-right: 1px solid rgba(229, 229, 229, 1);
+
+  .title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(229, 229, 229, 1);
+
+    img {
+      width: 60px;
+      height: auto;
+    }
+
+    span {
+      margin-top: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-style: italic;
+      color: #333;
+    }
+  }
+}
+
+// Add responsive styles
+@media (max-width: 768px) {
+  .navigation {
+    width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation {
+    width: 200px;
+
+    .title {
+      img {
+        width: 40px;
+      }
+
+      span {
+        font-size: 12px;
+      }
+    }
+  }
 }
 </style>

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "@pages/home.vue";
 import Index from "@pages/index.vue";
 import Login from "@pages/login.vue";
+import Menu from "@pages/menu.vue";
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
         path: "/",
         name: "Index",
         component: Index,
+      },
+      {
+        path: "menu",
+        name: "Menu",
+        component: Menu,
       },
     ],
   },
