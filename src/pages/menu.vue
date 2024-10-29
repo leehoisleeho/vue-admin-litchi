@@ -50,6 +50,7 @@ const showDrawer = () => {
   .title {
     height: 8%;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    background: white;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -59,6 +60,7 @@ const showDrawer = () => {
   .table {
     height: 90%;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    background: white;
     border-radius: 8px;
   }
 }

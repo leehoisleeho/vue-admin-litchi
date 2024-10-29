@@ -48,7 +48,8 @@ const handleOk = () => {
 
 <style scoped lang="less">
 .head {
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 1px;
+  background: white;
   height: 100%;
   display: flex;
   justify-content: end;

@@ -29,7 +29,7 @@ const route = useRoute();
 
 // Menu State
 const selectedKeys = ref([route.path]);
-const openKeys = ref(["menu"]); // 默认展开菜单管理
+const openKeys = ref([""]); // 默认展开菜单管理
 
 // Menu Item Factory
 const createMenuItem = (label, key, icon = null, children = null) => ({
@@ -85,7 +85,6 @@ watch(
 .navigation {
   width: 300px;
   height: 100vh;
-  border-right: 1px solid rgba(229, 229, 229, 1);
 
   .title {
     display: flex;

@@ -21,11 +21,10 @@ import Header from "@components/head.vue";
 .content {
   height: 100%;
   width: 100%;
-
+  background: #f0f0f0;
   .header {
     height: 75px;
   }
-
   .main {
     height: calc(100% - 75px);
     position: relative;
@@ -43,12 +42,13 @@ import Header from "@components/head.vue";
 }
 
 .slide-enter-from {
-  transform: translateY(100%);
+  transform: translateX(-100%);
   opacity: 1;
 }
 
 .slide-leave-to {
-  transform: translateY(-100%);
+  // transform: translateX(100%);
+  opacity: 0;
 }
 
 // 如果需要内部滚动，可以给路由页面添加以下样式
