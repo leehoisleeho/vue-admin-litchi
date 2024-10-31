@@ -8,15 +8,17 @@
       v-model:selectedKeys="selectedKeys"
       v-model:openKeys="openKeys"
       mode="inline"
-      :items="menuItems"
+      :items="combinedMenuItems"
       @click="handleMenuClick"
     />
   </div>
 </template>
 
 <script setup>
-import { computed, reactive, ref, h, watch } from "vue";
+import { computed, ref, h, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import * as Icons from "@ant-design/icons-vue";
+import { getDirectoryList } from "@api";
 import { HomeOutlined, MenuOutlined } from "@ant-design/icons-vue";
 
 // Constants and Environment Variables
@@ -28,57 +30,115 @@ const router = useRouter();
 const route = useRoute();
 
 // Menu State
-const selectedKeys = ref([route.path]);
-const openKeys = ref([""]); // 默认展开菜单管理
+const selectedKeys = ref([]);
+const openKeys = ref([]);
+const menuData = ref([]);
 
-// Menu Item Factory
-const createMenuItem = (label, key, icon = null, children = null) => ({
-  key,
-  label,
-  icon: icon ? () => h(icon) : undefined,
-  children,
+// 静态菜单项
+const staticMenuItems = [
+  {
+    key: "/",
+    label: "首页",
+    icon: () => h(HomeOutlined),
+  },
+  {
+    key: "/menu",
+    label: "菜单管理",
+    icon: () => h(MenuOutlined),
+  },
+];
+
+// 动态创建图标组件
+const createIcon = (iconName) => {
+  const icon = Icons[iconName];
+  return icon ? () => h(icon) : null;
+};
+
+// 处理动态菜单项
+const dynamicMenuItems = computed(() => {
+  return menuData.value
+    .filter((item) => item.isShow === "0")
+    .sort((a, b) => b.sort - a.sort)
+    .map((item) => {
+      if (item.isMenu === "1") {
+        return {
+          key: item.router_path,
+          label: item.directory_name,
+          icon: createIcon(item.icon_name),
+        };
+      } else if (item.isMenu === "0") {
+        return {
+          key: item.router_path,
+          label: item.directory_name,
+          icon: createIcon(item.icon_name),
+          children: item.children
+            .sort((a, b) => b.sort - a.sort)
+            .map((subItem) => ({
+              key: subItem.router_path,
+              label: subItem.menu_name,
+            })),
+        };
+      }
+    });
 });
 
-// Menu Structure
-const menuItems = reactive([
-  createMenuItem("首页", "/", HomeOutlined),
-  createMenuItem("菜单管理", "/menu", MenuOutlined),
-]);
-
-// Navigation Helpers
-const isSubMenu = computed(() => (path) => path.split("/").length > 2);
-
-const getParentKey = computed(() => (path) => {
-  const segments = path.split("/");
-  return segments.length > 1 ? `/${segments[1]}` : "";
+// 合并静态和动态菜单项
+const combinedMenuItems = computed(() => {
+  return [...staticMenuItems, ...dynamicMenuItems.value];
 });
 
-// Event Handlers
+// 获取菜单信息
+const fetchMenuList = async () => {
+  try {
+    const { data } = await getDirectoryList();
+    menuData.value = data;
+    // 获取菜单数据后更新选中状态
+    updateSelectedKeys(route.path);
+  } catch (error) {
+    console.error("获取菜单列表失败:", error);
+  }
+};
+
+// 更新选中的菜单项
+const updateSelectedKeys = (path) => {
+  selectedKeys.value = [path];
+  // 更新展开的菜单
+  const pathSegments = path.split("/").filter(Boolean);
+  if (pathSegments.length > 1) {
+    const parentKey = `/${pathSegments[0]}`;
+    if (!openKeys.value.includes(parentKey)) {
+      openKeys.value = [...openKeys.value, parentKey];
+    }
+  }
+};
+
+// Navigation Handlers
 const handleMenuClick = ({ key }) => {
+  updateSelectedKeys(key);
   router.push(key);
 };
 
-// Route Watcher
+// 监听路由变化
 watch(
-  route,
-  (newRoute) => {
-    selectedKeys.value = [newRoute.path];
-
-    // 根据当前路由判断是否需要展开父菜单
-    const parentMenuItem = menuItems.find((item) =>
-      item.children?.some((child) => child.key === newRoute.path)
-    );
-
-    if (parentMenuItem) {
-      // 如果当前路由是子菜单，展开父菜单
-      openKeys.value = [parentMenuItem.key];
-    } else {
-      // 如果是主菜单，收起所有菜单
-      openKeys.value = [];
-    }
+  () => route.path,
+  (newPath) => {
+    updateSelectedKeys(newPath);
   },
   { immediate: true }
 );
+
+// 监听菜单数据变化
+watch(
+  menuData,
+  () => {
+    updateSelectedKeys(route.path);
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  fetchMenuList();
+});
 </script>
 
 <style scoped lang="less">

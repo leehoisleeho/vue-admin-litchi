@@ -42,12 +42,12 @@ import Header from "@components/head.vue";
 }
 
 .slide-enter-from {
-  transform: translateX(-100%);
+  transform: translateX(-65%);
   opacity: 1;
 }
 
 .slide-leave-to {
-  // transform: translateX(100%);
+  // transform: translateX(50px);
   opacity: 0;
 }
 

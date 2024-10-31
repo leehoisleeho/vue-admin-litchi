@@ -4,32 +4,28 @@
       <p>{{ modalText }}</p>
     </a-modal>
     <div class="menu-form-item">
-      <p>菜单名称</p>
+      <p>目录名称</p>
       <a-input
-        v-model:value="menu_name"
-        placeholder="请输入菜单名称"
+        v-model:value="directory_name"
+        placeholder="请输入目录名称"
         style="margin-top: 0"
       />
-    </div>
-    <div class="menu-form-item">
-      <p>上层目录</p>
-      <a-select ref="select" v-model:value="parentId" style="width: 100%">
-        <a-select-option v-for="item in directoryList" :value="item.id">
-          {{ item.directory_name }}
-        </a-select-option>
-      </a-select>
     </div>
     <div class="menu-form-item">
       <p>路由地址</p>
       <a-input
         v-model:value="router_path"
-        placeholder="请输入路由地址 /user/add"
+        placeholder="请输入目录路由地址 /user"
         style="margin-top: 0"
       />
     </div>
     <div class="menu-form-item">
+      <Icon v-model="icon_name" />
+    </div>
+    <div class="menu-form-item">
       <p>目录排序</p>
       <a-input-number
+        placeholder="请输入排序 数字越大越靠前"
         v-model:value="sort"
         :keyboard="keyboard"
         :min="1"
@@ -44,6 +40,13 @@
       </a-select>
     </div>
     <div class="menu-form-item">
+      <p>是否有子菜单</p>
+      <a-select ref="select" v-model:value="isMenu" style="width: 100%">
+        <a-select-option value="0">是</a-select-option>
+        <a-select-option value="1">否</a-select-option>
+      </a-select>
+    </div>
+    <div class="menu-form-item" v-if="isMenu === '1'">
       <p>文件地址</p>
       <a-input
         v-model:value="file_path"
@@ -58,54 +61,43 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, onMounted } from "vue";
-import { getDirectoryList, createMenu } from "@api";
+import { ref, defineEmits } from "vue";
+import { createDirectory } from "@api";
+import Icon from "@/components/icon.vue";
 const open = ref(false);
-const menu_name = ref("");
+const directory_name = ref("");
 const sort = ref(1);
 const keyboard = ref(true);
 const isShow = ref("0");
+const icon_name = ref("");
+const isMenu = ref("0");
 const file_path = ref("");
 const router_path = ref("");
-const modalText = ref("确定创建菜单吗？");
-const title = ref("创建菜单");
-const parentId = ref("");
+const modalText = ref("确定创建目录吗？");
+const title = ref("创建目录");
 // 自定义事件
 const emits = defineEmits(["submit-success"]);
 // 创建
 const submitBtn = () => {
   open.value = true;
-  console.log(parentId.value);
 };
 // 提交创建事件
 const handleOk = async () => {
   const data = {
     file_path: file_path.value,
-    menu_name: menu_name.value,
+    directory_name: directory_name.value,
     sort: sort.value,
     isShow: isShow.value,
+    icon_name: icon_name.value,
+    isMenu: isMenu.value,
     router_path: router_path.value,
-    parentId: parentId.value,
   };
-  const res = await createMenu(data);
+  const res = await createDirectory(data);
   if (res.code === 0) {
     emits("submit-success");
   }
   open.value = false;
 };
-const directoryList = ref([]);
-// 获取目录列表
-const getDirectoryListData = async () => {
-  const res = await getDirectoryList();
-  if (res.code === 0) {
-    const { data } = res;
-    directoryList.value = data.filter((item) => item.isMenu === "0");
-  }
-};
-// 页面加载时候
-onMounted(() => {
-  getDirectoryListData();
-});
 </script>
 
 <style scoped lang="less">

@@ -5,12 +5,25 @@
       class="custom-class"
       root-class-name="drawer"
       placement="right"
-      title="菜单管理"
+      :title="title"
       :closable="false"
       width="30%"
       @after-open-change="afterOpenChange"
+      destroyOnClose
     >
-      <MenuForm></MenuForm>
+      <a-segmented
+        v-model:value="value"
+        :options="data"
+        style="margin-bottom: 20px"
+      />
+      <Transition mode="out-in" name="fade">
+        <KeepAlive>
+          <component
+            :is="activeComponent[value]"
+            @submit-success="handleSubmitSuccess"
+          />
+        </KeepAlive>
+      </Transition>
     </a-drawer>
     <div class="title">
       <div class="title-item-1"></div>
@@ -28,18 +41,49 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { FileAddOutlined } from "@ant-design/icons-vue";
+import DirectoryForm from "@components/directoryForm.vue";
 import MenuForm from "@components/menuForm.vue";
+import { message } from "ant-design-vue";
+const data = reactive(["目录", "菜单"]);
+const value = ref(data[0]);
 const open = ref(false);
+const title = ref(value.value);
+
+const activeComponent = {
+  目录: DirectoryForm,
+  菜单: MenuForm,
+};
 // 抽屉打开关闭回调
-const afterOpenChange = (bool) => {};
+const afterOpenChange = () => {
+  value.value = data[0];
+};
 const showDrawer = () => {
   open.value = true;
+};
+const handleSubmitSuccess = () => {
+  open.value = false;
+  message.success("提交成功");
 };
 </script>
 
 <style scoped lang="less">
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
 .menu {
   width: 100%;
   height: 100%;
