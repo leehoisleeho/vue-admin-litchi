@@ -55,15 +55,20 @@
       />
     </div>
     <div class="btnBox">
-      <a-button type="primary" @click="submitBtn">提交</a-button>
+      <a-button type="primary" @click="submitBtn" v-if="id === ''"
+        >提交</a-button
+      >
+      <a-button v-else @click="submitBtn">更新</a-button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
-import { createDirectory } from "@api";
+import { ref, defineEmits, defineProps } from "vue";
+import { createDirectory, getDirectoryDetail, updateDirectory } from "@api";
 import Icon from "@/components/icon.vue";
+import { onMounted } from "vue";
+
 const open = ref(false);
 const directory_name = ref("");
 const sort = ref(1);
@@ -75,12 +80,42 @@ const file_path = ref("");
 const router_path = ref("");
 const modalText = ref("确定创建目录吗？");
 const title = ref("创建目录");
+
+// 获取编辑数据
+const getData = async (id) => {
+  const res = await getDirectoryDetail(id);
+  if (res.code === 0) {
+    const { data } = res;
+    directory_name.value = data.directory_name;
+    sort.value = data.sort;
+    isShow.value = data.isShow;
+    icon_name.value = data.icon_name;
+    isMenu.value = data.isMenu;
+    file_path.value = data.file_path;
+    router_path.value = data.router_path;
+    title.value = "编辑目录";
+    modalText.value = "确定更新吗？";
+  }
+};
+
 // 自定义事件
 const emits = defineEmits(["submit-success"]);
+// props
+const props = defineProps(["id"]);
+const id = ref(props.id);
+onMounted(() => {
+  if (id.value === "") {
+    title.value = "创建目录";
+    modalText.value = "确定创建吗？";
+  } else {
+    getData(id.value);
+  }
+});
 // 创建
 const submitBtn = () => {
   open.value = true;
 };
+
 // 提交创建事件
 const handleOk = async () => {
   const data = {
@@ -92,6 +127,14 @@ const handleOk = async () => {
     isMenu: isMenu.value,
     router_path: router_path.value,
   };
+  if (id.value !== "") {
+    const res = await updateDirectory(id.value, data);
+    if (res.code === 0) {
+      emits("submit-success");
+    }
+    open.value = false;
+    return;
+  }
   const res = await createDirectory(data);
   if (res.code === 0) {
     emits("submit-success");
@@ -106,20 +149,23 @@ const handleOk = async () => {
   display: flex;
   justify-content: end;
   bottom: 0;
-
   width: 100%;
 }
+
 .icon-input {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .menu-form {
   width: 100%;
   height: 93%;
   position: relative;
+
   .menu-form-item {
     margin-bottom: 20px;
+
     p {
       font-size: 14px;
       color: #333;

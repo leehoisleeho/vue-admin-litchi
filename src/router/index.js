@@ -6,6 +6,8 @@ const Index = () => import("@pages/index.vue");
 const Login = () => import("@pages/login.vue");
 const Menu = () => import("@pages/menu.vue");
 
+const PageNotFound = () => import("@pages/404.vue");
+
 import { getDirectoryList } from "@api";
 
 const { data } = await getDirectoryList();
@@ -45,7 +47,7 @@ for (let i = 0; i < data.length; i++) {
   } else if (data[i].isMenu === "0") {
     data[i].children.forEach((item) => {
       // 去掉路径中的 .vue 后缀（如果存在）
-      const routerPath = item.router_path.replace(/\.vue$/, "");
+      const routerPath = item.file_path.replace(/\.vue$/, "");
       const component = normalizeComponentPath(routerPath);
       if (component) {
         routerList.push({
@@ -95,6 +97,14 @@ const routes = [
       title: "登录",
     },
   },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "PageNotFound",
+    component: PageNotFound,
+    meta: {
+      title: "404页面没找到",
+    },
+  },
 ];
 
 const router = createRouter({
@@ -104,7 +114,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title =
-    to.meta.title || import.meta.env.VITE_APP_TITLE || "默认标题";
+    import.meta.env.VITE_APP_TITLE + " - " + to.meta.title || "默认标题";
   next();
 });
 

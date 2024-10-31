@@ -59,7 +59,7 @@
 
 <script setup>
 import { ref, defineEmits, onMounted } from "vue";
-import { getDirectoryList, createMenu } from "@api";
+import { getDirectoryList, createMenu, getMenuDetail, updateMenu } from "@api";
 const open = ref(false);
 const menu_name = ref("");
 const sort = ref(1);
@@ -72,6 +72,33 @@ const title = ref("创建菜单");
 const parentId = ref("");
 // 自定义事件
 const emits = defineEmits(["submit-success"]);
+// props
+const props = defineProps(["id"]);
+const id = ref(props.id);
+onMounted(() => {
+  if (id.value === "") {
+    title.value = "创建目录";
+    modalText.value = "确定创建吗？";
+  } else {
+    getData(id.value);
+  }
+});
+// 获取编辑数据
+const getData = async (id) => {
+  const res = await getMenuDetail(id);
+  if (res.code === 0) {
+    const { data } = res;
+    menu_name.value = data.menu_name;
+    sort.value = data.sort;
+    file_path.value = data.file_path;
+    router_path.value = data.router_path;
+    isShow.value = data.isShow;
+    parentId.value = data.parentId;
+    title.value = "编辑菜单";
+    modalText.value = "确定编辑菜单吗？";
+  }
+};
+
 // 创建
 const submitBtn = () => {
   open.value = true;
@@ -87,6 +114,14 @@ const handleOk = async () => {
     router_path: router_path.value,
     parentId: parentId.value,
   };
+  if (id.value !== "") {
+    const res = await updateMenu(id.value, data);
+    if (res.code === 0) {
+      emits("submit-success");
+    }
+    open.value = false;
+    return;
+  }
   const res = await createMenu(data);
   if (res.code === 0) {
     emits("submit-success");
