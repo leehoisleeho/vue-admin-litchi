@@ -151,7 +151,7 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     padding: 15px;
-    border-bottom: 1px solid rgba(229, 229, 229, 1);
+    // border-bottom: 1px solid rgb(245, 245, 245);
 
     img {
       width: 60px;

@@ -95,7 +95,7 @@ const getData = async (id) => {
     isShow.value = data.isShow;
     parentId.value = data.parentId;
     title.value = "编辑菜单";
-    modalText.value = "确定编辑菜单吗？";
+    modalText.value = "确定编辑菜单吗?";
   }
 };
 

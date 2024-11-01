@@ -10,6 +10,7 @@
           <a-button type="primary" @click="goHome"> 回到首页 </a-button>
         </template>
       </a-result>
+     
     </div>
   </div>
 </template>
@@ -32,7 +33,7 @@ function goHome() {
   justify-content: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
   position: relative;
-  overflow: hidden;
+  overflow: hidden;  
 }
 
 .background-squares {
