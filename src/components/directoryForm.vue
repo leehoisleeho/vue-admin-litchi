@@ -32,13 +32,13 @@
         style="width: 100%"
       />
     </div>
-    <div class="menu-form-item">
+    <!-- <div class="menu-form-item">
       <p>目录显示/隐藏</p>
       <a-select ref="select" v-model:value="isShow" style="width: 100%">
         <a-select-option value="0">显示</a-select-option>
         <a-select-option value="1">隐藏</a-select-option>
       </a-select>
-    </div>
+    </div> -->
     <div class="menu-form-item">
       <p>是否有子菜单</p>
       <a-select ref="select" v-model:value="isMenu" style="width: 100%">

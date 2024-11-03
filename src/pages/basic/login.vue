@@ -10,7 +10,7 @@
         <div class="title">
           <p>{{ title }}</p>
         </div>
-        <img src="../assets/images/login.png" alt="" />
+        <img src="../../assets/images/login.png" alt="" />
         <div class="foot">浩辰科技提供技术支持 18608735101</div>
       </div>
       <div class="login-box-2">

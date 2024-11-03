@@ -19,7 +19,6 @@ import { computed, ref, h, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import * as Icons from "@ant-design/icons-vue";
 import { getDirectoryList } from "@api";
-import { HomeOutlined, MenuOutlined } from "@ant-design/icons-vue";
 
 // Constants and Environment Variables
 const title = import.meta.env.VITE_APP_TITLE;
@@ -33,20 +32,6 @@ const route = useRoute();
 const selectedKeys = ref([]);
 const openKeys = ref([]);
 const menuData = ref([]);
-
-// 静态菜单项
-const staticMenuItems = [
-  {
-    key: "/",
-    label: "首页",
-    icon: () => h(HomeOutlined),
-  },
-  {
-    key: "/menu",
-    label: "菜单管理",
-    icon: () => h(MenuOutlined),
-  },
-];
 
 // 动态创建图标组件
 const createIcon = (iconName) => {
@@ -84,7 +69,7 @@ const dynamicMenuItems = computed(() => {
 
 // 合并静态和动态菜单项
 const combinedMenuItems = computed(() => {
-  return [...staticMenuItems, ...dynamicMenuItems.value];
+  return [...dynamicMenuItems.value];
 });
 
 // 获取菜单信息
@@ -100,15 +85,21 @@ const fetchMenuList = async () => {
 };
 
 // 更新选中的菜单项
+// 更新选中的菜单项和展开的菜单项
 const updateSelectedKeys = (path) => {
   selectedKeys.value = [path];
   // 更新展开的菜单
-  const pathSegments = path.split("/").filter(Boolean);
-  if (pathSegments.length > 1) {
-    const parentKey = `/${pathSegments[0]}`;
+  const matchingItem = menuData.value.find((item) =>
+    item.children?.some((child) => child.router_path === path)
+  );
+  if (matchingItem) {
+    const parentKey = matchingItem.router_path;
     if (!openKeys.value.includes(parentKey)) {
       openKeys.value = [...openKeys.value, parentKey];
     }
+  } else {
+    // 如果没有匹配的二级菜单项，则可能是顶级菜单项或需要关闭所有展开的菜单
+    openKeys.value = [];
   }
 };
 
@@ -151,7 +142,6 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     padding: 15px;
-    // border-bottom: 1px solid rgb(245, 245, 245);
 
     img {
       width: 60px;

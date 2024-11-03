@@ -1,18 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
-
 // 基础路由组件
-const Home = () => import("@pages/home.vue");
-const Index = () => import("@pages/index.vue");
-const Login = () => import("@pages/login.vue");
-const Menu = () => import("@pages/menu.vue");
-
-const PageNotFound = () => import("@pages/404.vue");
+const Home = () => import("@pages/basic/home.vue");
+const Login = () => import("@pages/basic/login.vue");
+const TokenWarning = () => import("@pages/error/token-warning.vue");
+const PageNotFound = () => import("@pages/error/404.vue");
 
 import { getDirectoryList } from "@api";
 
 const { data } = await getDirectoryList();
-const routerList = [];
 
+const routerList = [];
 // 修改为正确的路径格式
 const modules = import.meta.glob(["/src/pages/**/*.vue"]);
 
@@ -25,7 +22,6 @@ const normalizeComponentPath = (path) => {
   if (modules[normalizedPath]) {
     return modules[normalizedPath];
   }
-
   return undefined;
 };
 
@@ -69,26 +65,11 @@ const routes = [
     name: "Home",
     component: Home,
     children: [
-      {
-        path: "/",
-        name: "Index",
-        component: Index,
-        meta: {
-          title: "首页",
-        },
-      },
-      {
-        path: "menu",
-        name: "Menu",
-        component: Menu,
-        meta: {
-          title: "菜单管理",
-        },
-      },
       // 动态路由
       ...routerList,
     ],
   },
+  // 登录
   {
     path: "/login",
     name: "Login",
@@ -97,12 +78,22 @@ const routes = [
       title: "登录",
     },
   },
+  // 404
   {
     path: "/:pathMatch(.*)*",
     name: "PageNotFound",
     component: PageNotFound,
     meta: {
       title: "404页面没找到",
+    },
+  },
+  // 登录过期
+  {
+    path: "/token-warning",
+    name: "TokenWarning",
+    component: TokenWarning,
+    meta: {
+      title: "访问受限",
     },
   },
 ];

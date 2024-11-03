@@ -1,8 +1,18 @@
 import axiosInstance from "./axios.config.js";
 
+// 初始化系统
+export const initSystem = async () => {
+  return axiosInstance.post("/init");
+};
+
 // 登录
 export const login = async (data) => {
   return axiosInstance.post("/login", data);
+};
+
+// 创建账号
+export const createAccount = async (data) => {
+  return axiosInstance.post("/account/create", data);
 };
 
 // 获取全部目录信息

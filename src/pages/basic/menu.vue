@@ -77,16 +77,17 @@
             <a-tag v-else>-</a-tag>
           </template>
           <template v-if="column.key === 'action'">
-            <a-button type="link" @click="editDir(record.id)">编辑</a-button>
-
-            <a-popconfirm
-              title="确定删除吗?"
-              ok-text="是"
-              cancel-text="否"
-              @confirm="deleteDir(record.id)"
-            >
-              <a-button danger type="link">删除</a-button>
-            </a-popconfirm>
+            <div v-if="isSystem(record.directory_name)">
+              <a-button type="link" @click="editDir(record.id)">编辑</a-button>
+              <a-popconfirm
+                title="确定删除吗?"
+                ok-text="是"
+                cancel-text="否"
+                @confirm="deleteDir(record.id)"
+              >
+                <a-button danger type="link">删除</a-button>
+              </a-popconfirm>
+            </div>
           </template>
         </template>
         <template #expandedRowRender="{ record }">
@@ -96,7 +97,6 @@
               <span>id</span>
               <span>菜单名称</span>
               <span>排序</span>
-              <span>显示</span>
               <span>路由地址</span>
               <span>文件路径</span>
               <span>创建时间</span>
@@ -107,15 +107,7 @@
               <span>{{ item.id }}</span>
               <span>{{ item.menu_name }}</span>
               <span>{{ item.sort }}</span>
-              <span>
-                <a-tag
-                  style="width: auto"
-                  color="red"
-                  v-if="item.isShow === '1'"
-                  >隐藏</a-tag
-                >
-                <a-tag color="green" style="width: auto" v-else>显示</a-tag>
-              </span>
+
               <span>
                 <a-tag color="blue" style="width: auto">
                   {{ item.router_path }}
@@ -139,15 +131,19 @@
                 <a-tag v-else style="width: auto">-</a-tag>
               </span>
               <span>
-                <a-button type="link" @click="editMenu(item.id)">编辑</a-button>
-                <a-popconfirm
-                  title="确定删除吗?"
-                  ok-text="是"
-                  cancel-text="否"
-                  @confirm="deleteMenu(item.id)"
-                >
-                  <a-button danger type="link">删除</a-button>
-                </a-popconfirm>
+                <div v-if="isSystem(item.menu_name)">
+                  <a-button type="link" @click="editMenu(item.id)"
+                    >编辑</a-button
+                  >
+                  <a-popconfirm
+                    title="确定删除吗?"
+                    ok-text="是"
+                    cancel-text="否"
+                    @confirm="deleteMenu(item.id)"
+                  >
+                    <a-button danger type="link">删除</a-button>
+                  </a-popconfirm>
+                </div>
               </span>
             </li>
           </ul>
@@ -161,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import * as Icons from "@ant-design/icons-vue";
 import { getDirectoryList, deleteDirectory, deleteMenuOne } from "@api";
 import { FileAddOutlined } from "@ant-design/icons-vue";
@@ -174,6 +170,23 @@ const value = ref(data[0]);
 const open = ref(false);
 const title = ref(value.value);
 const disabled = ref(false);
+
+// 计算属性
+const isSystem = computed(() => {
+  return (value) => {
+    if (
+      value === "首页" ||
+      value === "系统配置" ||
+      value === "权限管理" ||
+      value === "菜单管理" ||
+      value === "账号管理"
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+});
 
 /**
  * 新增/编辑状态
@@ -218,11 +231,6 @@ const columns = [
     title: "排序",
     dataIndex: "sort",
     key: "sort",
-  },
-  {
-    title: "显示",
-    dataIndex: "isShow",
-    key: "isShow",
   },
   {
     title: "路由地址",
