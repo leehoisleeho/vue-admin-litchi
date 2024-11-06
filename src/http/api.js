@@ -56,3 +56,26 @@ export const updateMenu = async (id, data) => {
 export const deleteMenuOne = async (id) => {
   return axiosInstance.delete(`/menu/${id}`);
 };
+
+// 创建权限
+export const createPermission = async (data) => {
+  return axiosInstance.post("/permissions", data);
+};
+
+// 获取权限列表
+export const getPermissions = async () => {
+  return axiosInstance.get("/permissions/findAll");
+};
+
+// 删除权限
+export const deletePermissionOne = async (id) => {
+  return axiosInstance.delete(`/permissions/${id}`);
+};
+// 获取权限详情
+export const getPermissionOne = async (id) => {
+  return axiosInstance.get(`/permissions/findOne/${id}`);
+};
+// 修改权限
+export const updatePermission = async (id, data) => {
+  return axiosInstance.put(`/permissions/${id}`, data);
+};

@@ -10,7 +10,7 @@
       width="30%"
       destroyOnClose
     >
-      <PermissionsForm></PermissionsForm>
+      <PermissionsForm @submit-success="handleSubmitSuccess" :EditId="EditId" />
     </a-drawer>
     <div class="title">
       <div class="title-item-1"></div>
@@ -23,20 +23,99 @@
         </a-button>
       </div>
     </div>
-    <div class="table"></div>
+    <div class="table">
+      <a-table
+        :columns="columns"
+        :data-source="dataList"
+        :expand-column-width="100"
+        :pagination="false"
+        :rowClassName="() => 'custom-row'"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'action'">
+            <a-button type="link" @click="edit(record.id)">编辑</a-button>
+            <a-popconfirm
+              title="确定删除吗?"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="del(record.id)"
+            >
+              <a-button type="link" danger>删除</a-button>
+            </a-popconfirm>
+          </template>
+        </template>
+      </a-table>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { getPermissions, deletePermissionOne } from "@api";
 import { FileAddOutlined } from "@ant-design/icons-vue";
 import PermissionsForm from "@components/permissionsForm.vue";
+
+// 表格
+const dataList = ref([]);
+const columns = [
+  {
+    title: "权限名称",
+    dataIndex: "permissions_name",
+    key: "permissions_name",
+  },
+  {
+    title: "创建时间",
+    dataIndex: "createdAt",
+    key: "createdAt",
+  },
+  {
+    title: "更新时间",
+    dataIndex: "updatedAt",
+    key: "updatedAt",
+  },
+  {
+    title: "操作",
+    key: "action",
+  },
+];
+
+// 自定义事件
+const handleSubmitSuccess = () => {
+  open.value = false;
+  getList();
+};
 
 const open = ref(false);
 const title = ref("");
 const add = () => {
   title.value = "新增权限";
+  EditId.value = "";
   open.value = true;
+};
+
+// 获取权限列表
+const getList = async () => {
+  const res = await getPermissions();
+  dataList.value = res.data;
+};
+
+// 页面加载时
+onMounted(() => {
+  getList();
+});
+
+const EditId = ref("");
+// 编辑权限
+const edit = (id) => {
+  title.value = "编辑权限";
+  open.value = true;
+  EditId.value = id;
+};
+
+// 删除权限
+const del = async (id) => {
+  await deletePermissionOne(id);
+  getList();
 };
 </script>
 
@@ -79,21 +158,7 @@ const add = () => {
 :deep(.custom-row) {
   height: 6.9vh; // 设置你想要的行高
 }
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.3s ease;
-}
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(5px);
-}
-
-.fade-enter-to,
-.fade-leave-from {
-  opacity: 1;
-}
 .menu {
   width: 100%;
   height: 100%;
