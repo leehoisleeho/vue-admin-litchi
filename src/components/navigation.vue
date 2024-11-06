@@ -18,7 +18,7 @@
 import { computed, ref, h, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import * as Icons from "@ant-design/icons-vue";
-import { getDirectoryList } from "@api";
+import { getDirectoryList, getAccountDetail } from "@api";
 
 // Constants and Environment Variables
 const title = import.meta.env.VITE_APP_TITLE;
@@ -57,6 +57,7 @@ const dynamicMenuItems = computed(() => {
           label: item.directory_name,
           icon: createIcon(item.icon_name),
           children: item.children
+            .filter((subItem) => subItem.isShow === "0")
             .sort((a, b) => b.sort - a.sort)
             .map((subItem) => ({
               key: subItem.router_path,
@@ -75,16 +76,34 @@ const combinedMenuItems = computed(() => {
 // 获取菜单信息
 const fetchMenuList = async () => {
   try {
-    const { data } = await getDirectoryList();
-    menuData.value = data;
-    // 获取菜单数据后更新选中状态
-    updateSelectedKeys(route.path);
+    const token = localStorage.getItem("token");
+    // JWT通常由点（.）分隔成三部分
+    const parts = token.split(".");
+    const encodedPayload = parts[1]; // 载荷部分
+    // JWT的载荷部分是base64编码的，需要解码
+    const decodedPayload = atob(encodedPayload);
+    // 将解码后的字符串转换为JSON对象
+    const payload = JSON.parse(decodedPayload);
+    // 现在，payload对象包含了JWT中的用户信息
+    const res = await getAccountDetail(payload.id);
+    const userData = res.data;
+    if (userData.permission !== "all") {
+      menuData.value = JSON.parse(userData.permissions.permissions_list);
+      console.log("解析后的权限数据:", menuData.value);
+    } else {
+      console.log("获取所有菜单");
+      const { data } = await getDirectoryList();
+      console.log("获取到的菜单数据:", data);
+      menuData.value = data;
+      // 获取菜单数据后更新选中状态
+      updateSelectedKeys(route.path);
+    }
+    // 从token里面 获取用户信息
   } catch (error) {
     console.error("获取菜单列表失败:", error);
   }
 };
 
-// 更新选中的菜单项
 // 更新选中的菜单项和展开的菜单项
 const updateSelectedKeys = (path) => {
   selectedKeys.value = [path];

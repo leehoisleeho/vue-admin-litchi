@@ -14,7 +14,22 @@ export const login = async (data) => {
 export const createAccount = async (data) => {
   return axiosInstance.post("/account/create", data);
 };
-
+// 获取全部账号信息
+export const getAccountList = async () => {
+  return axiosInstance.get("/account/findAll");
+};
+// 删除账号
+export const deleteAccount = async (id) => {
+  return axiosInstance.delete(`/account/${id}`);
+};
+// 获取账号详情
+export const getAccountDetail = async (id) => {
+  return axiosInstance.get(`/account/find/${id}`);
+};
+// 更新账号
+export const updateAccount = async (id, data) => {
+  return axiosInstance.put(`/account/${id}`, data);
+};
 // 获取全部目录信息
 export const getDirectoryList = async () => {
   return axiosInstance.get("/directory/all");

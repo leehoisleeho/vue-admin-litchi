@@ -10,6 +10,10 @@
       width="30%"
       destroyOnClose
     >
+      <accountForm
+        @submit-success="handleSubmitSuccess"
+        :EditId="EditId"
+      ></accountForm>
     </a-drawer>
     <div class="title">
       <div class="title-item-1"></div>
@@ -42,6 +46,12 @@
               <a-button type="link" danger>删除</a-button>
             </a-popconfirm>
           </template>
+          <template v-if="column.key === 'permissions'">
+            <div v-if="record.permissions">
+              {{ record.permissions.permissions_name }}
+            </div>
+            <div v-else>all</div>
+          </template>
         </template>
       </a-table>
     </div>
@@ -50,16 +60,17 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { getPermissions, deletePermissionOne } from "@api";
+import { getAccountList, deleteAccount } from "@api";
 import { FileAddOutlined } from "@ant-design/icons-vue";
+import accountForm from "@components/accountForm.vue";
 
 // 表格
 const dataList = ref([]);
 const columns = [
   {
-    title: "权限名称",
-    dataIndex: "permissions_name",
-    key: "permissions_name",
+    title: "用户名",
+    dataIndex: "username",
+    key: "username",
   },
   {
     title: "创建时间",
@@ -70,6 +81,11 @@ const columns = [
     title: "更新时间",
     dataIndex: "updatedAt",
     key: "updatedAt",
+  },
+  {
+    title: "权限组",
+    dataIndex: "permissions",
+    key: "permissions",
   },
   {
     title: "操作",
@@ -93,8 +109,13 @@ const add = () => {
 
 // 获取权限列表
 const getList = async () => {
-  const res = await getPermissions();
-  dataList.value = res.data;
+  const res = await getAccountList();
+
+  // 使用 filter 方法排除用户名为 "admin" 的项
+  const filteredData = res.data.filter((item) => item.username !== "admin");
+
+  // 将过滤后的数据添加到 dataList
+  dataList.value = filteredData;
 };
 
 // 页面加载时
@@ -112,7 +133,7 @@ const edit = (id) => {
 
 // 删除权限
 const del = async (id) => {
-  await deletePermissionOne(id);
+  await deleteAccount(id);
   getList();
 };
 </script>
