@@ -179,7 +179,8 @@ const isSystem = computed(() => {
       value === "系统配置" ||
       value === "权限管理" ||
       value === "菜单管理" ||
-      value === "账号管理"
+      value === "账号管理" ||
+      value === "系统设置"
     ) {
       return false;
     } else {

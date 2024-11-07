@@ -16,7 +16,7 @@
 
 <script setup>
 import { computed, ref, h, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import * as Icons from "@ant-design/icons-vue";
 import { getDirectoryList, getAccountDetail } from "@api";
 
@@ -25,11 +25,11 @@ const title = import.meta.env.VITE_APP_TITLE;
 const logoUrl = "/logo.png";
 
 // Router Setup
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
 
 // Menu State
-const selectedKeys = ref([]);
+const selectedKeys = ref(["/index"]);
 const openKeys = ref([]);
 const menuData = ref([]);
 
@@ -89,11 +89,8 @@ const fetchMenuList = async () => {
     const userData = res.data;
     if (userData.permission !== "all") {
       menuData.value = JSON.parse(userData.permissions.permissions_list);
-      console.log("解析后的权限数据:", menuData.value);
     } else {
-      console.log("获取所有菜单");
       const { data } = await getDirectoryList();
-      console.log("获取到的菜单数据:", data);
       menuData.value = data;
       // 获取菜单数据后更新选中状态
       updateSelectedKeys(route.path);
@@ -146,8 +143,9 @@ watch(
   { deep: true }
 );
 
-onMounted(() => {
+onMounted(async () => {
   fetchMenuList();
+  // 强制刷新页面
 });
 </script>
 

@@ -59,7 +59,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+
 import {
   EyeTwoTone,
   EyeInvisibleOutlined,
@@ -67,10 +67,11 @@ import {
   LockOutlined,
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-import { login } from "@api";
+import { login, getDirectoryList } from "@api";
 import SHA256 from "crypto-js/sha256";
+import { getUserInfo } from "@utils/getUserInfo.js";
+import router, { addDynamicRoutes } from "../../router";
 
-const router = useRouter();
 const username = ref("");
 const password = ref("");
 const title = import.meta.env.VITE_APP_TITLE;
@@ -99,6 +100,17 @@ const submitLogin = async () => {
     if (res.code === 0) {
       localStorage.setItem("token", res.data.token_access);
       message.success("登录成功", 1.5);
+      const userInfo = await getUserInfo(res.data.token_access);
+      let data = null;
+      if (userInfo.permission === "all") {
+        console.log("admin");
+        let res = await getDirectoryList();
+        data = res.data;
+      } else {
+        console.log("user");
+        data = JSON.parse(userInfo.permissions.permissions_list);
+      }
+      await addDynamicRoutes(data);
       router.push("/");
     } else {
       // 如果登录失败，也显示错误信息
@@ -107,7 +119,6 @@ const submitLogin = async () => {
   } catch (error) {
     console.error(error);
   } finally {
-    // 无论成功还是失败，都会执行这里的代码
     loading.value = false;
   }
 };

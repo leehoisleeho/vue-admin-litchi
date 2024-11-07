@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
 
     // 判断token是否过期
     console.log(msg);
-    if (msg === "token已过期" || msg === "请在请求头中携带token") {
+    if (msg === "token无效" || msg === "请在请求头中携带token") {
       localStorage.removeItem("token");
       // 跳转到登录页面
       router.push("/token-warning");

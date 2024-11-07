@@ -51,11 +51,14 @@ const permissionsList = ref([]);
 const emits = defineEmits(["submit-success"]);
 // props
 const props = defineProps(["EditId"]);
+// oldPassWord
+const oldPassWord = ref("");
 onMounted(() => {
   getPermissionsList();
   if (props.EditId) {
     getAccountDetail(props.EditId).then((res) => {
       username.value = res.data.username;
+      oldPassWord.value = res.data.password;
       password.value = res.data.password;
       permissionsId.value = res.data.permissionsId;
     });
@@ -69,7 +72,7 @@ const getPermissionsList = async () => {
   permissionsList.value = res.data;
 };
 
-// 提交
+// 创建
 const submit = async () => {
   try {
     await createAccount({
@@ -81,7 +84,6 @@ const submit = async () => {
     emits("submit-success");
     message.success("更新成功");
   } catch (error) {
-    console.log(error);
     emits("submit-success");
     message.error("更新失败");
   } finally {
@@ -90,6 +92,23 @@ const submit = async () => {
 };
 // 更新
 const edit = async () => {
+  if (oldPassWord.value === password.value) {
+    try {
+      await updateAccount(props.EditId, {
+        username: username.value,
+        password: oldPassWord.value,
+        permissionsId: permissionsId.value,
+        permission: "",
+      });
+      emits("submit-success");
+      message.success("更新成功");
+    } catch (error) {
+      console.log(error);
+      emits("submit-success");
+      message.error("更新失败");
+    }
+    return;
+  }
   try {
     await updateAccount(props.EditId, {
       username: username.value,
