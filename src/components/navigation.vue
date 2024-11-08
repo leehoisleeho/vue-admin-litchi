@@ -1,8 +1,8 @@
 <template>
   <div class="navigation">
     <div class="title">
-      <img :src="logoUrl" :alt="title" />
-      <span>{{ title }}</span>
+      <img :src="system_logo_url" />
+      <span>{{ system_name }}</span>
     </div>
     <a-menu
       v-model:selectedKeys="selectedKeys"
@@ -11,6 +11,7 @@
       :items="combinedMenuItems"
       @click="handleMenuClick"
     />
+    <div class="foot">系统版本 {{ system_version }}</div>
   </div>
 </template>
 
@@ -18,11 +19,31 @@
 import { computed, ref, h, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import * as Icons from "@ant-design/icons-vue";
-import { getDirectoryList, getAccountDetail } from "@api";
+import { getDirectoryList, getAccountDetail, getSystemConfig } from "@api";
 
 // Constants and Environment Variables
-const title = import.meta.env.VITE_APP_TITLE;
-const logoUrl = "/logo.png";
+const system_name = ref("");
+const system_logo_url = ref("");
+const system_version = ref("");
+const baseURL = import.meta.env.VITE_BASE_URL;
+onMounted(async () => {
+  // 在这里执行你的逻辑
+  try {
+    const { data } = await getSystemConfig();
+    if (data && data[0]) {
+      system_name.value = data[0].system_name;
+      system_version.value = data[0].system_version;
+      if (data[0].system_logo_url) {
+        system_logo_url.value = baseURL + data[0].system_logo_url;
+      } else {
+        system_logo_url.value = "/logo.png";
+      }
+    }
+  } catch (error) {
+    console.error("获取系统配置失败:", error);
+    message.error("获取系统配置失败");
+  }
+});
 
 // Router Setup
 const route = useRoute();
@@ -150,10 +171,18 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
+.foot {
+  font-size: 12px;
+  color: #898989;
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+}
 .navigation {
   width: 300px;
   height: 100vh;
-
+  position: relative;
   .title {
     display: flex;
     flex-direction: column;

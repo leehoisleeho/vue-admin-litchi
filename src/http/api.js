@@ -94,3 +94,18 @@ export const getPermissionOne = async (id) => {
 export const updatePermission = async (id, data) => {
   return axiosInstance.put(`/permissions/${id}`, data);
 };
+
+// 获取系统配置信息
+export const getSystemConfig = async () => {
+  return axiosInstance.get("/system");
+};
+
+// 编辑
+export const updateSystemConfig = async (data) => {
+  return axiosInstance.put("/system", data);
+};
+
+// 图片上传
+export const uploadImage = async (data) => {
+  return axiosInstance.post("/upload/img", data);
+};

@@ -93,4 +93,11 @@ export const addDynamicRoutes = async (data) => {
   });
 };
 
+// 路由守卫 设置页面标题
+router.beforeEach((to, from, next) => {
+  // 设置页面标题
+  document.title = to.meta.title;
+  next();
+});
+
 export default router;

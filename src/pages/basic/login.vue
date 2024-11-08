@@ -8,14 +8,14 @@
       </div>
       <div class="login-box-1">
         <div class="title">
-          <p>{{ title }}</p>
+          <p>{{ system_name }}</p>
         </div>
         <img src="../../assets/images/login.png" alt="" />
         <div class="foot">浩辰科技提供技术支持 18608735101</div>
       </div>
       <div class="login-box-2">
         <div class="title-2">
-          <img src="/logo.png" alt="" />
+          <img :src="system_logo_url" alt="" />
           <h1>登录 Login</h1>
           <a-input
             v-model:value="username"
@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 import {
   EyeTwoTone,
@@ -67,15 +67,38 @@ import {
   LockOutlined,
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-import { login, getDirectoryList } from "@api";
+import { login, getDirectoryList, getSystemConfig } from "@api";
 import SHA256 from "crypto-js/sha256";
 import { getUserInfo } from "@utils/getUserInfo.js";
 import router, { addDynamicRoutes } from "../../router";
 
 const username = ref("");
 const password = ref("");
-const title = import.meta.env.VITE_APP_TITLE;
 const loading = ref(false);
+
+const system_name = ref("");
+const system_logo_url = ref("");
+const system_version = ref("");
+const baseURL = import.meta.env.VITE_BASE_URL;
+onMounted(async () => {
+  // 在这里执行你的逻辑
+  try {
+    const { data } = await getSystemConfig();
+    if (data && data[0]) {
+      system_name.value = data[0].system_name;
+      system_version.value = data[0].system_version;
+      if (data[0].system_logo_url) {
+        system_logo_url.value = baseURL + data[0].system_logo_url;
+      } else {
+        system_logo_url.value = "/logo.png";
+      }
+    }
+  } catch (error) {
+    console.error("获取系统配置失败:", error);
+    message.error("获取系统配置失败");
+  }
+});
+
 // 回车发送事件
 const _enter = (event) => {
   if (event.keyCode === 13) {
