@@ -42,6 +42,7 @@
 <script setup>
 import { ref, reactive, onMounted, defineEmits, defineProps } from "vue";
 import { message } from "ant-design-vue";
+import _ from "lodash";
 import {
   getDirectoryList,
   createPermission,
@@ -60,7 +61,6 @@ const formState = reactive({
 
 // 树形控件状态
 const checkedKeys = ref([]);
-const halfCheckedKeys = ref([]);
 const originalData = ref([]);
 const treeData = ref([]);
 
@@ -185,21 +185,19 @@ const onFinish = async () => {
     submitting.value = false;
   }
 };
-
-// 编辑模式下，初始化表单和树数据
 // 编辑模式下，初始化表单和树数据
 const initializeForm = async (id) => {
   try {
     loading.value = true;
     const { data } = await getPermissionOne(id);
-
     // 设置表单名称
     formState.permissions_name = data.permissions_name;
-
     // 解析权限列表数据
     const permissionData = JSON.parse(data.permissions_list);
-    console.log("解析后的权限数据:", permissionData);
+    // 同步最新的权限列表
+    const newList = await syncPermissionsList(permissionData);
 
+    // 比较用户的权限列表和目录列表进行比较，找出差异
     // 转换树形数据结构的函数
     const transformToTreeData = (items) => {
       if (!Array.isArray(items)) return [];
@@ -250,19 +248,95 @@ const initializeForm = async (id) => {
     };
 
     // 转换树形数据
-    const transformedTreeData = transformToTreeData(permissionData);
+    const transformedTreeData = transformToTreeData(newList);
     treeData.value = transformedTreeData;
 
     // 设置选中的节点
-    checkedKeys.value = getCheckedKeys(permissionData);
+    checkedKeys.value = getCheckedKeys(newList);
 
     // 保存原始数据
-    originalData.value = permissionData;
+    originalData.value = newList;
   } catch (error) {
     message.error("初始化表单数据失败");
   } finally {
     loading.value = false;
   }
+};
+// 同步最新的权限列表数据
+const syncPermissionsList = async (value) => {
+  // 获取最新的目录列表数据
+  const { data: newData } = await getDirectoryList();
+  let _data = [...value]; // 目标数据副本
+
+  // 递归同步数据的辅助函数
+  const syncItems = (sourceItems, targetItems) => {
+    // 过滤并更新目标数据，只保留在源数据中存在的项
+    return targetItems
+      .filter((targetItem) => {
+        // 检查当前项是否在源数据中存在
+        const sourceItem = sourceItems.find(
+          (item) => item.id === targetItem.id
+        );
+        return sourceItem !== undefined;
+      })
+      .map((targetItem) => {
+        // 获取对应的源数据项
+        const sourceItem = sourceItems.find(
+          (item) => item.id === targetItem.id
+        );
+
+        // 处理子项
+        let children = undefined;
+        if (sourceItem.children?.length && targetItem.children?.length) {
+          children = syncItems(sourceItem.children, targetItem.children);
+        } else if (sourceItem.children?.length) {
+          children = sourceItem.children.map((child) => ({
+            ...child,
+            isShow: "1",
+          }));
+        }
+
+        // 合并数据，使用源数据的结构但保留目标数据的某些属性
+        return {
+          ...sourceItem,
+          isShow: targetItem.isShow || "1",
+          children,
+        };
+      });
+  };
+
+  // 执行同步，先过滤掉顶层不存在的项
+  const syncedData = newData.map((sourceItem) => {
+    const targetItem = _data.find((item) => item.id === sourceItem.id);
+
+    // 如果在目标数据中找不到对应项，使用源数据并设置默认值
+    if (!targetItem) {
+      return {
+        ...sourceItem,
+        isShow: "1",
+        children: sourceItem.children?.map((child) => ({
+          ...child,
+          isShow: "1",
+        })),
+      };
+    }
+
+    // 如果找到匹配项，递归同步处理
+    return {
+      ...sourceItem,
+      isShow: targetItem.isShow || "1",
+      children:
+        sourceItem.children?.length && targetItem.children?.length
+          ? syncItems(sourceItem.children, targetItem.children)
+          : sourceItem.children?.map((child) => ({
+              ...child,
+              isShow: "1",
+            })),
+    };
+  });
+
+  console.log("同步后的数据", syncedData);
+  return syncedData;
 };
 
 // 组件挂载时获取数据

@@ -3,13 +3,32 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/logo.png" />
+  <link id="icon" rel="icon" type="image/svg+xml" href="/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
+  <script type="module">
+    import { getSystemConfig } from '/src/http/api.js'
+    const baseURL = import.meta.env.VITE_BASE_URL;
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        // 发起请求获取系统配置信息
+        const res = await getSystemConfig();
+        let url = res.data[0].system_logo_url;
+        const icon = document.getElementById('icon');
+        if (url === '') {
+          icon.href = '/logo.png';
+          return
+        }
+        icon.href = baseURL + url;
+      } catch (error) {
+        console.error('Failed to fetch config:', error);
+      }
+    });
+  </script>
 </body>
 
 </html>

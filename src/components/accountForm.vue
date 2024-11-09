@@ -53,7 +53,7 @@ const emits = defineEmits(["submit-success"]);
 const props = defineProps(["EditId"]);
 // oldPassWord
 const oldPassWord = ref("");
-onMounted(() => {
+onMounted(async () => {
   getPermissionsList();
   if (props.EditId) {
     getAccountDetail(props.EditId).then((res) => {

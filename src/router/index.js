@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { getSystemConfig } from "../http/api";
 
 // 动态导入基础路由组件
 const Login = () => import("@pages/basic/login.vue");
@@ -94,9 +95,11 @@ export const addDynamicRoutes = async (data) => {
 };
 
 // 路由守卫 设置页面标题
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const res = await getSystemConfig();
+
   // 设置页面标题
-  document.title = to.meta.title;
+  document.title = res.data[0].system_name + " | " + to.meta.title;
   next();
 });
 
