@@ -1,0 +1,29 @@
+{
+  "basic/account": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/account.vue"
+  },
+  "basic/home": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/home.vue"
+  },
+  "basic": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/index.vue"
+  },
+  "basic/login": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/login.vue"
+  },
+  "basic/menu": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/menu.vue"
+  },
+  "basic/permissions": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/permissions.vue"
+  },
+  "basic/system": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/system.vue"
+  },
+  "error/404": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/error/404.vue"
+  },
+  "error/token-warning": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/error/token-warning.vue"
+  }
+}

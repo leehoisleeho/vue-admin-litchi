@@ -1,0 +1,62 @@
+{
+  "basic/account": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/account.vue",
+    "size": 5169,
+    "mtime": "2024-11-06T12:00:52.518Z",
+    "extension": ".vue"
+  },
+  "basic/home": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/home.vue",
+    "size": 311,
+    "mtime": "2024-11-07T05:31:26.589Z",
+    "extension": ".vue"
+  },
+  "basic": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/index.vue",
+    "size": 332,
+    "mtime": "2024-10-29T13:47:32.205Z",
+    "extension": ".vue"
+  },
+  "basic/login": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/login.vue",
+    "size": 6245,
+    "mtime": "2024-11-08T09:10:04.268Z",
+    "extension": ".vue"
+  },
+  "basic/menu": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/menu.vue",
+    "size": 12002,
+    "mtime": "2024-11-10T07:49:20.253Z",
+    "extension": ".vue"
+  },
+  "basic/permissions": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/permissions.vue",
+    "size": 4671,
+    "mtime": "2024-11-06T08:13:11.934Z",
+    "extension": ".vue"
+  },
+  "basic/system": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/basic/system.vue",
+    "size": 4465,
+    "mtime": "2024-11-08T09:04:42.024Z",
+    "extension": ".vue"
+  },
+  "error/404": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/error/404.vue",
+    "size": 1802,
+    "mtime": "2024-11-01T13:18:39.068Z",
+    "extension": ".vue"
+  },
+  "error/token-warning": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/error/token-warning.vue",
+    "size": 1749,
+    "mtime": "2024-11-02T07:50:49.374Z",
+    "extension": ".vue"
+  },
+  "pay": {
+    "path": "/Users/leeHo/Desktop/litchi/vue-admin/src/pages/pay/index.vue",
+    "size": 116,
+    "mtime": "2024-11-10T07:45:48.426Z",
+    "extension": ".vue"
+  }
+}

@@ -32,13 +32,6 @@
         style="width: 100%"
       />
     </div>
-    <!-- <div class="menu-form-item">
-      <p>目录显示/隐藏</p>
-      <a-select ref="select" v-model:value="isShow" style="width: 100%">
-        <a-select-option value="0">显示</a-select-option>
-        <a-select-option value="1">隐藏</a-select-option>
-      </a-select>
-    </div> -->
     <div class="menu-form-item">
       <p>是否有子菜单</p>
       <a-select ref="select" v-model:value="isMenu" style="width: 100%">
@@ -53,6 +46,19 @@
         placeholder="请输入文件地址 /user/user.vue 或者 /user/user"
         style="margin-top: 0"
       />
+      <!-- 显示匹配结果 -->
+      <ul v-if="isShowList" class="pagesList">
+        <li
+          v-for="item in matchedPage"
+          :key="item.value"
+          @click="selectItem(item.value)"
+        >
+          {{ item.value }}
+        </li>
+      </ul>
+      <p style="color: #ea4336; margin-top: 5px; font-size: 12px">
+        {{ errorMsg }}
+      </p>
     </div>
     <div class="btnBox">
       <a-button type="primary" @click="submitBtn" v-if="id === ''"
@@ -64,10 +70,10 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, defineProps } from "vue";
+import { ref, defineEmits, defineProps, watch, onMounted } from "vue";
 import { createDirectory, getDirectoryDetail, updateDirectory } from "@api";
+import pages from "../auto-pages.json"; // 根据你的输出路径调整
 import Icon from "@/components/icon.vue";
-import { onMounted } from "vue";
 
 const open = ref(false);
 const directory_name = ref("");
@@ -80,6 +86,7 @@ const file_path = ref("");
 const router_path = ref("");
 const modalText = ref("确定创建目录吗？");
 const title = ref("创建目录");
+const pagesList = ref([]);
 
 // 获取编辑数据
 const getData = async (id) => {
@@ -138,12 +145,91 @@ const handleOk = async () => {
   const res = await createDirectory(data);
   if (res.code === 0) {
     emits("submit-success");
+    // 强制刷新页面
+    location.reload();
   }
   open.value = false;
 };
+const isShowList = ref(false);
+const selectItem = (item) => {
+  file_path.value = item;
+  isShowList.value = false; // 选中后立即隐藏
+};
+function getRoutePath(fullPath) {
+  // 匹配 /pages/ 后面的所有内容，直到文件扩展名
+  const match = fullPath.match(/\/pages\/(.*?)\.vue$/);
+  return match ? match[1] : "";
+}
+
+const errorMsg = ref("");
+const matchedPage = ref(null);
+
+// 监听file_path输入框的变化
+watch(file_path, (newValue) => {
+  let selected = true;
+  if (newValue === "") {
+    isShowList.value = false;
+    selected = false;
+  }
+  // 如果选中了完整路径 则不显示列表
+  pagesList.value.forEach((item) => {
+    if (item.value === newValue) {
+      selected = false;
+    }
+  });
+  if (selected) {
+    // 重置状态
+    matchedPage.value = null;
+    errorMsg.value = "";
+
+    if (!newValue) return;
+
+    // 使用filter找出所有匹配的项
+    const found = pagesList.value.filter((item) =>
+      item.value.includes(newValue)
+    );
+
+    if (found.length > 0) {
+      isShowList.value = true;
+
+      matchedPage.value = found.reverse();
+    } else {
+      console.log("未找到匹配的页面");
+      errorMsg.value = "未找到匹配的页面";
+    }
+  }
+});
+// 页面加载时候
+onMounted(() => {
+  const res = Object.entries(pages).map(([route, info]) => ({
+    route,
+    ...info,
+  }));
+  res.forEach((item) => {
+    pagesList.value.push({
+      value: "/" + getRoutePath(item.path),
+    });
+  });
+});
 </script>
 
 <style scoped lang="less">
+.pagesList {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 5px;
+  border: 1px solid #f5f5f5;
+  // 动画
+  transition: all 0.5s ease-in-out;
+  li {
+    list-style: none;
+    padding: 10px 8px;
+    cursor: pointer;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+}
 .btnBox {
   position: absolute;
   display: flex;

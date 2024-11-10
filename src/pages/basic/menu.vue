@@ -323,7 +323,9 @@ const deleteDir = async (id) => {
   const res = await deleteDirectory(id);
   if (res.code === 0) {
     message.success("删除成功");
-    fetchMenuList();
+    await fetchMenuList();
+    // 强制刷新页面
+    location.reload();
   } else {
     message.error("删除失败");
   }
@@ -332,7 +334,9 @@ const deleteMenu = async (id) => {
   const res = await deleteMenuOne(id);
   if (res.code === 0) {
     message.success("删除成功");
-    fetchMenuList();
+    await fetchMenuList();
+    // 强制刷新页面
+    location.reload();
   } else {
     message.error("删除失败");
   }
